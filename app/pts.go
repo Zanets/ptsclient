@@ -4,13 +4,20 @@ import (
   "fmt"
   "log"
   "net/http"
-
   "github.com/PuerkitoBio/goquery"
 )
 
 const url_news = "https://news.pts.org.tw/dailynews.php"
 
-func ExampleScrape() {
+type app_pts struct {
+	app_ui
+}
+
+func (this app_pts) Draw() {
+	
+}
+
+func (this app_pts) Fetch() {
   // Request the HTML page.
   res, err := http.Get(url_news)
   if err != nil {
@@ -53,8 +60,4 @@ func ExampleScrape() {
 		fmt.Printf("%s\n", news_content)
 	})
 
-}
-
-func main() {
-  ExampleScrape()
 }
