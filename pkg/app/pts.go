@@ -1,23 +1,25 @@
-package main
+package app
 
 import (
-  "fmt"
   "log"
   "net/http"
+	"strings"
   "github.com/PuerkitoBio/goquery"
+	"github.com/Zanets/tclient/pkg/ui"
 )
 
 const url_news = "https://news.pts.org.tw/dailynews.php"
 
-type app_pts struct {
-	app_ui
+type APP_pts struct {
+	ui.APP_UI
 }
 
-func (this app_pts) Draw() {
-	
+func (this APP_pts) GetName() string {
+	return "PTS News"
 }
 
-func (this app_pts) Fetch() {
+func (this APP_pts) GetContent() string {
+	var content strings.Builder
   // Request the HTML page.
   res, err := http.Get(url_news)
   if err != nil {
@@ -46,7 +48,8 @@ func (this app_pts) Fetch() {
 
 	title := titles.Find("span").First().Text() 
 
-	fmt.Printf("%s\n", title)
+	content.WriteString(title)
+	content.WriteString("\n")
 
 	contents := news_list.Find(".m-right-side").First()
 	if contents == nil {
@@ -56,8 +59,13 @@ func (this app_pts) Fetch() {
 	contents.Find(".news-list").Each(func (i int, s *goquery.Selection) {
 		news_title := s.Find(".text-title").Find("span").First().Text()
 		news_content := s.Find(".text-content").First().Text()
-		fmt.Printf("[ %s ]\n", news_title)
-		fmt.Printf("%s\n", news_content)
+		content.WriteString("[")
+		content.WriteString(news_title)
+		content.WriteString("]\n")
+		
+		content.WriteString(news_content)
+		content.WriteString("\n")
 	})
 
+	return content.String()
 }
