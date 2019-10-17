@@ -3,23 +3,23 @@ package ui
 import (
 	"github.com/rivo/tview"
 	"github.com/gdamore/tcell"
-	"fmt"
 )
 
 type MainWindow struct {
 	rootapp *tview.Application
 	layout *tview.Grid
 	sidebar *tview.List
-	app *tview.Grid
+	app *tview.TextView
 	apps []APP_UI
 }
 
 func NewMainWindow() *MainWindow {
 	ins := MainWindow{}
 	ins.sidebar = tview.NewList()
-	ins.app = nil
+	ins.app = tview.NewTextView()
 	ins.layout = tview.NewGrid().SetColumns(20, 0)
 	ins.layout.AddItem(ins.sidebar, 0, 0, 1, 1, 0, 0, true)
+	ins.layout.AddItem(ins.app, 0, 1, 1, 1, 0, 0, false)
 	ins.rootapp = tview.NewApplication()
 	ins.rootapp.SetRoot(ins.layout, true)
 
@@ -43,14 +43,10 @@ func (this *MainWindow) StartAPP() {
 
 func (this *MainWindow) SetSidebarEvent() {
 	this.sidebar.SetSelectedFunc(func (i int, mainText string, secText string, c rune) {
-		var err error
-		this.app, err = this.apps[i].GetContent()
-		if err != nil {
-			fmt.Println("app fail")
-		}
 		this.FocusOnAPP()
-		this.StartAPP()
-		this.layout.AddItem(this.app, 0, 1, 1, 1, 0, 0, false)
+		// BUG: this line not work
+		this.app.SetText("Loading...")
+		this.app.SetText(this.apps[i].GetContent())
 	})
 }
 
@@ -73,6 +69,7 @@ func (this *MainWindow) FocusOnAPP() {
 
 func (this *MainWindow) Start() {
 	this.StartSideBar()
+	this.StartAPP()
 	if err := this.rootapp.Run(); err != nil {
 		panic(err)
 	}
